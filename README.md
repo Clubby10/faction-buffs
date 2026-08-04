@@ -14,11 +14,7 @@ FactionsKore MobCoins through a custom `/pb` shop.
    MobCoin take command differs from the defaults.
 7. Run `/pb reload`.
 
-Use `/pb` to open the Paradise Buff shop directly. Players do not need to use
-FactionsKore's `/coins` shop.
-
-If an older configuration reports that the shop is disabled, set
-`shop.enabled: true`, keep `shop.currency: MOBCOINS`, and run `/pb reload`.
+Use `/pb` to open the Paradise Buff shop directly.
 
 ## Commands
 

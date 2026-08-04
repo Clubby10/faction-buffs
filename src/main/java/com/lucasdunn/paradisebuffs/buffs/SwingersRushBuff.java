@@ -30,8 +30,8 @@ import java.util.Random;
 import java.util.UUID;
 
 /** Grants the attacker a configurable Speed effect after enough successful PvP hits. */
-public final class ParadiseRushBuff implements CustomBuff, Listener {
-    private static final String ID = "paradise-rush";
+public final class SwingersRushBuff implements CustomBuff, Listener {
+    private static final String ID = "swingers-rush";
     private static final String ORB_KIND = "ORB";
     private static final String ITEM_KIND = "ITEM";
 
@@ -63,7 +63,7 @@ public final class ParadiseRushBuff implements CustomBuff, Listener {
     private List<String> orbLore;
     private String appliedLore;
 
-    public ParadiseRushBuff(ParadiseBuffsPlugin plugin,
+    public SwingersRushBuff(ParadiseBuffsPlugin plugin,
                             BuffItemAuthenticator authenticator) {
         this.plugin = plugin;
         this.authenticator = authenticator;
@@ -139,7 +139,7 @@ public final class ParadiseRushBuff implements CustomBuff, Listener {
                     + procChancePercent + ".");
         }
 
-        buffName = plugin.color(config.getString("name", "&e&lSwingers Rush"));
+        buffName = plugin.color(config.getString("name", "&e&lSWINGERS RUSH"));
         String orbMaterialName = config.getString("orb-material", "FEATHER");
         orbMaterial = Material.matchMaterial(orbMaterialName);
         if (orbMaterial == null || orbMaterial == Material.AIR) {
@@ -149,7 +149,7 @@ public final class ParadiseRushBuff implements CustomBuff, Listener {
         }
         orbData = (short) clamp(config.getInt("orb-data", 0), 0, Short.MAX_VALUE);
         orbName = plugin.color(config.getString(
-                "orb-name", "&e&lSwingers Rush &7Buff Orb"));
+                "orb-name", "&e&lSWINGERS RUSH &7Buff Orb"));
         orbLore = new ArrayList<String>();
         List<String> configuredLore = config.getStringList("orb-lore");
         if (configuredLore.isEmpty()) {

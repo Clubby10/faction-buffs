@@ -50,7 +50,7 @@ an activity window. Taking the required number of entity hits during that
 window rolls a configurable chance to grant Resistance or another configured
 potion effect.
 
-### Swingers Rush
+### SWINGERS RUSH
 
 Drag the feather orb onto the configured armor type. Each successful melee hit
 against another player counts toward the configured threshold. Reaching it
@@ -142,9 +142,9 @@ Maven is also supported with `mvn clean package`.
 
 ### Buffs
 
-| Forcers Shark | Patcher Paradise | Swingers Rush |
+| Forcers Shark | Patcher Paradise | SWINGERS RUSH |
 | --- | --- | --- |
-| ![Forcers Shark](pictures/forcers%20shark.png) | ![Patcher Paradise](pictures/patchers%20paradise.png) | ![Swingers Rush](pictures/swingers%20rush.png) |
+| ![Forcers Shark](pictures/forcers%20shark.png) | ![Patcher Paradise](pictures/patchers%20paradise.png) | ![SWINGERS RUSH](pictures/swingers%20rush.png) |
 
 ### Armor and activation
 

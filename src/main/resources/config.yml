@@ -75,10 +75,10 @@ shop:
         - "&7> &fPrice: &e%price% %currency%"
         - ""
         - "&e&lCLICK TO PURCHASE!"
-    paradise-rush-single:
+    swingers-rush-single:
       enabled: true
       slot: 15
-      buff: paradise-rush
+      buff: swingers-rush
       amount: 1
       price: 20
       name: "&e&l%buff% &7Orb"
@@ -182,7 +182,7 @@ buffs:
       - "&eDrag onto a Diamond Chestplate to apply!"
     applied-lore: "&b&lPATCHER PARADISE &7(&e%chance%%% &b%effect% Chance&7)"
 
-  paradise-rush:
+  swingers-rush:
     enabled: true
 
     # Every successful melee hit against another player counts while worn.
@@ -205,10 +205,10 @@ buffs:
       errors: true
 
     # This feather is also the icon shown in the third shop position.
-    name: "&e&lSwingers Rush"
+    name: "&e&lSWINGERS RUSH"
     orb-material: FEATHER
     orb-data: 0
-    orb-name: "&e&lSwingers Rush &7Buff Orb"
+    orb-name: "&e&lSWINGERS RUSH &7Buff Orb"
     orb-lore:
       - "&7Strike with the speed of the Oceanic Realm."
       - ""
@@ -243,5 +243,5 @@ messages:
   already-buffed: "&cThat armor already has %buff%&c!"
   patcher-enabled: "&bPatcher Paradise &ais active for &e%window% seconds&a!"
   patcher-resistance-activated: "&bPatcher Paradise &aactivated! &e%effect% %level% &7for &e%duration% seconds&a!"
-  rush-speed-activated: "&eSwingers Rush &aactivated! &fSpeed %level% &7for &e%duration% seconds&a!"
+  rush-speed-activated: "&eSWINGERS RUSH &aactivated! &fSpeed %level% &7for &e%duration% seconds&a!"
   reloaded: "&aParadise Buffs configuration successfully reloaded!"

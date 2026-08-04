@@ -2,7 +2,7 @@ package com.lucasdunn.paradisebuffs;
 
 import com.lucasdunn.paradisebuffs.buffs.ForcersSharkBuff;
 import com.lucasdunn.paradisebuffs.buffs.PatcherParadiseBuff;
-import com.lucasdunn.paradisebuffs.buffs.ParadiseRushBuff;
+import com.lucasdunn.paradisebuffs.buffs.SwingersRushBuff;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -54,7 +54,7 @@ public final class ParadiseBuffsPlugin extends JavaPlugin implements Listener {
 
         registerBuff(new ForcersSharkBuff(this, authenticator));
         registerBuff(new PatcherParadiseBuff(this, authenticator));
-        registerBuff(new ParadiseRushBuff(this, authenticator));
+        registerBuff(new SwingersRushBuff(this, authenticator));
         getServer().getPluginManager().registerEvents(this, this);
         shop = new BuffShop(this);
         getServer().getPluginManager().registerEvents(shop, this);

@@ -142,7 +142,7 @@ Maven is also supported with `mvn clean package`.
 
 ### Buffs
 
-| Forcers Shark | Patcher Paradise | SWINGERS RUSH |
+| Forcers Shark | Patcher Paradise | Swingers Rush |
 | --- | --- | --- |
 | ![Forcers Shark](pictures/forcers%20shark.png) | ![Patcher Paradise](pictures/patchers%20paradise.png) | ![SWINGERS RUSH](pictures/swingers%20rush.png) |
 

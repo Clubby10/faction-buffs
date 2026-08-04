@@ -1,0 +1,247 @@
+# Maximum number accepted by one /paradisebuffs give command.
+# The physical safety ceiling is 2304 (36 full stacks).
+max-give-amount: 64
+
+# The /pb shop reads FactionsKore's raw MobCoin placeholder, checks the balance,
+# runs its take command, and verifies that the configured price was removed
+# before granting the buff. Both dependencies must be enabled.
+integrations:
+  factionskore-mobcoins:
+    enabled: true
+    plugin-name: FactionsKore
+    balance-placeholder: "%kore_mobcoins_balance%"
+    take-command: "coins take %player% %amount%"
+
+# Buff shop. Slots are zero-based: a 3-row inventory uses slots 0 through 26.
+# The default middle row is: blue pane, orb, pane, orb, pane, orb, blue pane.
+shop:
+  enabled: true
+  title: "&b&lPARADISE&f&lPVP &3Buffs"
+  rows: 3
+
+  # MOBCOINS uses the validated FactionsKore integration above. LEVELS and
+  # POINTS remain available as optional alternatives.
+  currency: MOBCOINS
+  mobcoin-currency-name: "&eMobCoins"
+  level-currency-name: "&eXP Levels"
+  point-currency-name: "&eXP Points"
+  close-after-purchase: false
+  # Maximum quantity accepted from any individual offer below (1-2304).
+  max-offer-amount: 64
+
+  purchase-sound:
+    enabled: true
+    name: LEVEL_UP
+    volume: 1.0
+    pitch: 1.0
+
+  decoration:
+    enabled: true
+    material: STAINED_GLASS_PANE
+    data: 3
+    name: "&b&lPARADISE&f&lPVP"
+    lore: []
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+
+  # Add, remove, rename, and reposition offers freely. Each offer can sell any
+  # registered buff ID. Available placeholders are:
+  # %buff%, %buff-id%, %amount%, %price%, and %currency%.
+  offers:
+    forcers-shark-single:
+      enabled: true
+      slot: 11
+      buff: forcers-shark
+      amount: 1
+      price: 15
+      name: "&b&l%buff% &7Orb"
+      lore:
+        - "&7Rule the depths with increased damage."
+        - ""
+        - "&7> &fAmount: &b%amount%"
+        - "&7> &fPrice: &e%price% %currency%"
+        - ""
+        - "&e&lCLICK TO PURCHASE!"
+    patcher-paradise-single:
+      enabled: true
+      slot: 13
+      buff: patcher-paradise
+      amount: 1
+      price: 20
+      name: "&3&l%buff% &7Orb"
+      lore:
+        - "&7Patch the ocean and endure enemy attacks."
+        - ""
+        - "&7> &fAmount: &b%amount%"
+        - "&7> &fPrice: &e%price% %currency%"
+        - ""
+        - "&e&lCLICK TO PURCHASE!"
+    paradise-rush-single:
+      enabled: true
+      slot: 15
+      buff: paradise-rush
+      amount: 1
+      price: 20
+      name: "&e&l%buff% &7Orb"
+      lore:
+        - "&7Build momentum by striking enemy players."
+        - ""
+        - "&7> &fAmount: &b%amount%"
+        - "&7> &fPrice: &e%price% %currency%"
+        - ""
+        - "&e&lCLICK TO PURCHASE!"
+
+buffs:
+  forcers-shark:
+    enabled: true
+
+    # Enable either damage source independently.
+    melee-enabled: true
+    projectiles-enabled: true
+
+    # At least one enabled location must contain water for the bonus to apply.
+    water-detection:
+      feet: true
+      head: true
+
+    # Toggle this buff's application feedback independently.
+    messages:
+      applied: true
+      errors: true
+      orb-place: true
+
+    # The armor material that accepts this buff's orb.
+    applicable-item: DIAMOND_CHESTPLATE
+    applicable-item-name: "Diamond Chestplate"
+
+    # 25 means final damage is multiplied by 1.25 while in water.
+    # Accepted range: 0-1000.
+    damage-percent: 25.0
+
+    # Orb appearance. Any valid 1.8 Material and data value can be used.
+    # MAGMA_CREAM is the magma ball/orb item.
+    name: "&9&lForcers &3&lShark"
+    orb-material: MAGMA_CREAM
+    orb-data: 0
+    orb-name: "&9&lForcers &3&lShark &7Buff Orb"
+    orb-lore:
+      - "&7Forged for warriors of the Oceanic Realm."
+      - ""
+      - "&7> &fWater Damage: &b+%percent%%"
+      - ""
+      - "&eDrag onto a Diamond Chestplate to apply!"
+    applied-lore: "&9&lFORCERS SHARK &7(&b+%percent%% Water Damage&7)"
+
+  patcher-paradise:
+    enabled: true
+
+    # The armor material that accepts this buff's orb.
+    applicable-item: DIAMOND_CHESTPLATE
+    applicable-item-name: "Diamond Chestplate"
+
+    # Placing a block into water starts (or refreshes) this hit-counting window.
+    required-hits: 3 # 1-100
+    activity-window-seconds: 10 # 1-300
+    refresh-activity-window: true
+    reset-hits-on-failed-proc: true
+    reset-window-on-success: true
+    minimum-counted-damage: 0.01
+    effect-type: DAMAGE_RESISTANCE
+    resistance-duration-seconds: 5 # 1-300
+    resistance-level: 2 # 1-10
+    effect-ambient: false
+    effect-particles: true
+    overwrite-existing-effect: true
+    proc-chance-percent: 50.0
+
+    # Choose exactly which water-placement checks can activate the buff.
+    water-detection:
+      replaced-block: true
+      block-against: true
+      player-feet: true
+      player-head: true
+      adjacent-blocks: true
+
+    # Each category of Patcher Paradise feedback can be toggled independently.
+    # The enabled message only fires for a new window, not a silent refresh.
+    show-enabled-message: true
+    show-applied-message: true
+    show-activated-message: true
+    show-orb-place-message: false
+    show-error-messages: false
+
+    # Orb appearance. Any valid 1.8 Material and data value can be used.
+    name: "&b&lPatcher &3&lParadise"
+    orb-material: BRICK
+    orb-data: 0
+    orb-name: "&b&lPatcher &3&lParadise &7Buff Orb"
+    orb-lore:
+      - "&7Harness the resilience of the Oceanic Realm."
+      - ""
+      - "&7> &fAfter %hits% Hits: &e%chance%%% &b%effect% %level% &7for &b%duration%s"
+      - ""
+      - "&eDrag onto a Diamond Chestplate to apply!"
+    applied-lore: "&b&lPATCHER PARADISE &7(&e%chance%%% &b%effect% Chance&7)"
+
+  paradise-rush:
+    enabled: true
+
+    # Every successful melee hit against another player counts while worn.
+    applicable-item: DIAMOND_CHESTPLATE
+    applicable-item-name: "Diamond Chestplate"
+    required-hits: 3 # 1-100
+    proc-chance-percent: 50.0 # 0-100
+    speed-duration-seconds: 5 # 1-300
+    speed-level: 3 # 1-10; 3 is Speed III
+    minimum-counted-damage: 0.01
+    reset-hits-on-failed-proc: true
+    effect-ambient: false
+    effect-particles: true
+    overwrite-existing-effect: true
+
+    messages:
+      applied: true
+      activated: true
+      orb-place: true
+      errors: true
+
+    # This feather is also the icon shown in the third shop position.
+    name: "&e&lSwingers Rush"
+    orb-material: FEATHER
+    orb-data: 0
+    orb-name: "&e&lSwingers Rush &7Buff Orb"
+    orb-lore:
+      - "&7Strike with the speed of the Oceanic Realm."
+      - ""
+      - "&7> &fAfter %hits% Hits: &e%chance%%% &fSpeed %level% &7for &e%duration%s"
+      - ""
+      - "&eDrag onto a Diamond Chestplate to apply!"
+    applied-lore: "&e&lSWINGERS RUSH &7(&e%chance%%% Speed %level% Chance&7)"
+
+messages:
+  prefix: "&8[&6&lPARADISE&f&lPVP&8] &7» "
+  no-permission: "&cYou do not have permission to do that!"
+  players-only: "&cOnly players can open the Paradise Buff shop!"
+  usage: "&cUsage: /paradisebuffs [shop|give <buff> [player] [amount]|list|reload]"
+  shop-disabled: "&cThe Paradise Buff shop is disabled. Use &e/coins &cto purchase buffs!"
+  shop-unavailable: "&cThat Paradise Buff is currently unavailable!"
+  not-enough-currency: "&cYou need &e%price% %currency% &cto purchase that!"
+  mobcoins-unavailable: "&cMobCoins are currently unavailable. Please contact an administrator!"
+  mobcoins-transaction-failed: "&cYour MobCoins could not be safely charged, so nothing was purchased!"
+  purchased: "&aYou purchased &e%amount%x %buff% &afor &e%price% %currency%&a!"
+  buff-list: "&aAvailable Paradise Buffs: &b%buffs%"
+  buff-not-found: "&cUnknown or disabled Paradise Buff: &f%buff%&c. Use &e/pb list&c."
+  none: "&cnone"
+  player-not-found: "&cThat player is not online!"
+  invalid-amount: "&cThe amount must be a positive whole number!"
+  amount-too-large: "&cThe maximum amount per command is &e%max%&c!"
+  inventory-full: "&cYour inventory is full! Some buff orbs could not be delivered."
+  given: "&aGave &e%amount%x %buff% &aorb(s) to &e%player%&a!"
+  received: "&aYou received &e%amount%x %buff% &aorb(s)!"
+  applied: "&aYou successfully applied %buff% &ato your armor!"
+  wrong-item: "&cThis buff orb can only be applied to a &e%item%&c!"
+  orb-cannot-place: "&cParadise Buff orbs cannot be placed as blocks!"
+  already-buffed: "&cThat armor already has %buff%&c!"
+  patcher-enabled: "&bPatcher Paradise &ais active for &e%window% seconds&a!"
+  patcher-resistance-activated: "&bPatcher Paradise &aactivated! &e%effect% %level% &7for &e%duration% seconds&a!"
+  rush-speed-activated: "&eSwingers Rush &aactivated! &fSpeed %level% &7for &e%duration% seconds&a!"
+  reloaded: "&aParadise Buffs configuration successfully reloaded!"

@@ -1,0 +1,64 @@
+# Gradle and Maven
+.gradle/
+build/
+target/
+out/
+bin/
+*.class
+dependency-reduced-pom.xml
+.flattened-pom.xml
+
+# IDE and editor metadata
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+*.swp
+*.swo
+*~
+
+# Local Codex/agent state
+.agents/
+.codex/
+
+# Local Minecraft server/runtime data
+server/
+plugins/
+logs/
+crash-reports/
+world/
+world_nether/
+world_the_end/
+eula.txt
+server.properties
+banned-*.json
+ops.json
+usercache.json
+whitelist.json
+secret.key
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Logs, JVM crashes, and temporary files
+*.log
+hs_err_pid*.log
+replay_pid*.log
+*.tmp
+*.temp
+*.bak
+
+# Operating-system files
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/

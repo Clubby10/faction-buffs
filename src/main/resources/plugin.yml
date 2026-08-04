@@ -1,0 +1,18 @@
+name: ParadiseBuffs
+version: 1.0.7
+main: com.lucasdunn.paradisebuffs.ParadiseBuffsPlugin
+author: LucasDunn
+description: Custom oceanic buffs for ParadisePvP.
+softdepend: [FactionsKore, PlaceholderAPI]
+commands:
+  paradisebuffs:
+    description: Manages Paradise Buffs.
+    usage: /paradisebuffs [shop|give <buff> [player] [amount]|list|reload]
+    aliases: [pb, pbuffs, buffs]
+permissions:
+  paradisebuffs.shop:
+    description: Allows players to open and use the buff shop.
+    default: true
+  paradisebuffs.admin:
+    description: Allows use of all Paradise Buffs commands.
+    default: op

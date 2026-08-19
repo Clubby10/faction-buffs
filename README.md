@@ -8,7 +8,7 @@ FactionsKore MobCoins through a custom `/pb` shop.
 1. Install Java 8+ and a Spigot 1.8.8/1.8.9 server.
 2. Install FactionsKore and enable its MobCoin feature.
 3. Install PlaceholderAPI and enable FactionsKore's placeholders.
-4. Put `ParadiseBuffs-1.0.7.jar` in the server's `plugins` folder.
+4. Put `ParadiseBuffs-1.0.8.jar` in the server's `plugins` folder.
 5. Start the server to generate the configuration and signing key.
 6. Edit `plugins/ParadiseBuffs/config.yml` if your FactionsKore placeholder or
    MobCoin take command differs from the defaults.
@@ -33,7 +33,15 @@ Use `/pb` to open the Paradise Buff shop directly.
 - `paradisebuffs.admin` - use list, give, and reload commands
 
 The shop permission is enabled by default. Administrative permission defaults
-to server operators.
+to server operators. Both nodes can be changed in `config.yml`:
+
+```yaml
+permissions:
+  shop: 'paradisebuffs.shop'
+  admin: 'paradisebuffs.admin'
+```
+
+Run `/pb reload` after changing them.
 
 ## Included Buffs
 
@@ -128,7 +136,7 @@ Run:
 .\gradlew.bat build
 ```
 
-The plugin will be created at `build/libs/ParadiseBuffs-1.0.7.jar`.
+The plugin will be created at `build/libs/ParadiseBuffs-1.0.8.jar`.
 
 Maven is also supported with `mvn clean package`.
 

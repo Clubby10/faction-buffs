@@ -36,6 +36,8 @@ public final class ParadiseBuffsPlugin extends JavaPlugin implements Listener {
     private BuffItemAuthenticator authenticator;
     private BuffShop shop;
     private int maxGiveAmount;
+    private String shopPermission = "paradisebuffs.shop";
+    private String adminPermission = "paradisebuffs.admin";
 
     @Override
     public void onEnable() {
@@ -94,7 +96,7 @@ public final class ParadiseBuffsPlugin extends JavaPlugin implements Listener {
                 sender.sendMessage(message("prefix") + message("players-only"));
                 return true;
             }
-            if (!sender.hasPermission("paradisebuffs.shop")) {
+            if (!sender.hasPermission(shopPermission)) {
                 sender.sendMessage(message("prefix") + message("no-permission"));
                 return true;
             }
@@ -102,7 +104,7 @@ public final class ParadiseBuffsPlugin extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (!sender.hasPermission("paradisebuffs.admin")) {
+        if (!sender.hasPermission(adminPermission)) {
             sender.sendMessage(message("prefix") + message("no-permission"));
             return true;
         }
@@ -181,10 +183,10 @@ public final class ParadiseBuffsPlugin extends JavaPlugin implements Listener {
                                       String alias, String[] args) {
         List<String> choices = new ArrayList<String>();
         if (args.length == 1) {
-            if (sender.hasPermission("paradisebuffs.shop")) {
+            if (sender.hasPermission(shopPermission)) {
                 choices.add("shop");
             }
-            if (sender.hasPermission("paradisebuffs.admin")) {
+            if (sender.hasPermission(adminPermission)) {
                 choices.add("give");
                 choices.add("list");
                 choices.add("reload");
@@ -215,6 +217,8 @@ public final class ParadiseBuffsPlugin extends JavaPlugin implements Listener {
     }
 
     private void reloadSettings() {
+        shopPermission = configuredPermission("shop", "paradisebuffs.shop");
+        adminPermission = configuredPermission("admin", "paradisebuffs.admin");
         int configuredMaximum = getConfig().getInt("max-give-amount", DEFAULT_MAX_GIVE_AMOUNT);
         maxGiveAmount = Math.max(1, Math.min(HARD_MAX_GIVE_AMOUNT, configuredMaximum));
         if (configuredMaximum != maxGiveAmount) {
@@ -230,6 +234,16 @@ public final class ParadiseBuffsPlugin extends JavaPlugin implements Listener {
         for (Player player : getServer().getOnlinePlayers()) {
             hideLegacyMarkers(player);
         }
+    }
+
+    private String configuredPermission(String key, String fallback) {
+        String configured = getConfig().getString("permissions." + key, fallback);
+        if (configured == null || configured.trim().isEmpty()) {
+            getLogger().warning("permissions." + key + " cannot be blank; using "
+                    + fallback + ".");
+            return fallback;
+        }
+        return configured.trim();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

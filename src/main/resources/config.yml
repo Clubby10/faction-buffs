@@ -1,3 +1,8 @@
+# Permission nodes may be changed to match your permissions setup.
+permissions:
+  shop: 'paradisebuffs.shop'
+  admin: 'paradisebuffs.admin'
+
 # Maximum number accepted by one /paradisebuffs give command.
 # The physical safety ceiling is 2304 (36 full stacks).
 max-give-amount: 64

@@ -40,6 +40,8 @@ public final class PatcherParadiseBuff implements CustomBuff, Listener {
     private final BuffItemAuthenticator authenticator;
     private final Map<UUID, PatchActivity> activity =
             new HashMap<UUID, PatchActivity>();
+    private final Map<UUID, EffectRestore> effectRestores =
+            new HashMap<UUID, EffectRestore>();
     private final Random random = new Random();
 
     private boolean enabled;
@@ -345,14 +347,15 @@ public final class PatcherParadiseBuff implements CustomBuff, Listener {
             return;
         }
 
+        if (!applyConfiguredEffect(player)) {
+            current.hits = requiredHits;
+            return;
+        }
         if (resetWindowOnSuccess) {
             activity.remove(playerId);
         } else {
             current.hits = 0;
         }
-        player.addPotionEffect(new PotionEffect(effectType,
-                resistanceDurationTicks, resistanceAmplifier,
-                effectAmbient, effectParticles), overwriteExistingEffect);
         if (showActivatedMessage) {
             player.sendMessage(format(plugin.message("prefix")
                     + plugin.message("patcher-resistance-activated")));
@@ -362,6 +365,103 @@ public final class PatcherParadiseBuff implements CustomBuff, Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         activity.remove(event.getPlayer().getUniqueId());
+        EffectRestore restore = effectRestores.remove(event.getPlayer().getUniqueId());
+        if (restore != null) {
+            plugin.getServer().getScheduler().cancelTask(restore.taskId);
+            restoreDisplacedEffect(event.getPlayer(), restore, true);
+        }
+    }
+
+    private boolean applyConfiguredEffect(final Player player) {
+        final UUID playerId = player.getUniqueId();
+        EffectRestore previousRestore = effectRestores.get(playerId);
+        PotionEffect displacedEffect = null;
+        long displacedExpiresAt = 0L;
+
+        if (previousRestore != null && !previousRestore.effectType.equals(effectType)) {
+            effectRestores.remove(playerId);
+            plugin.getServer().getScheduler().cancelTask(previousRestore.taskId);
+            restoreDisplacedEffect(player, previousRestore, true);
+            previousRestore = null;
+        }
+        if (previousRestore != null && previousRestore.effectType.equals(effectType)) {
+            displacedEffect = previousRestore.displacedEffect;
+            displacedExpiresAt = previousRestore.displacedExpiresAt;
+        } else {
+            PotionEffect current = findEffect(player, effectType);
+            if (current != null && (current.getAmplifier() > resistanceAmplifier
+                    || (current.getAmplifier() == resistanceAmplifier
+                    && current.getDuration() >= resistanceDurationTicks))) {
+                return false;
+            }
+            if (current != null && current.getAmplifier() < resistanceAmplifier) {
+                displacedEffect = current;
+                displacedExpiresAt = System.currentTimeMillis() + current.getDuration() * 50L;
+            }
+        }
+
+        boolean applied = player.addPotionEffect(new PotionEffect(effectType,
+                resistanceDurationTicks, resistanceAmplifier,
+                effectAmbient, effectParticles), overwriteExistingEffect);
+        if (!applied) {
+            return false;
+        }
+        if (previousRestore != null) {
+            plugin.getServer().getScheduler().cancelTask(previousRestore.taskId);
+        }
+
+        final EffectRestore restore = new EffectRestore(effectType, displacedEffect,
+                displacedExpiresAt, resistanceAmplifier);
+        restore.taskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        restoreEffect(player, restore);
+                    }
+                }, resistanceDurationTicks);
+        effectRestores.put(playerId, restore);
+        return true;
+    }
+
+    private void restoreEffect(Player player, EffectRestore restore) {
+        UUID playerId = player.getUniqueId();
+        if (effectRestores.get(playerId) != restore) {
+            return;
+        }
+        effectRestores.remove(playerId);
+        restoreDisplacedEffect(player, restore, false);
+    }
+
+    private void restoreDisplacedEffect(Player player, EffectRestore restore,
+                                         boolean removeAppliedEffect) {
+        PotionEffect current = findEffect(player, restore.effectType);
+        if (current != null && current.getAmplifier() != restore.appliedAmplifier) {
+            return;
+        }
+        if (current != null && (removeAppliedEffect || current.getDuration() <= 2)) {
+            player.removePotionEffect(restore.effectType);
+        } else if (current != null) {
+            return;
+        }
+        if (restore.displacedEffect == null) {
+            return;
+        }
+        int remainingTicks = (int) Math.min(Integer.MAX_VALUE,
+                Math.max(0L, (restore.displacedExpiresAt - System.currentTimeMillis()) / 50L));
+        if (remainingTicks > 0) {
+            player.addPotionEffect(new PotionEffect(restore.effectType, remainingTicks,
+                    restore.displacedEffect.getAmplifier(), restore.displacedEffect.isAmbient(),
+                    restore.displacedEffect.hasParticles()), true);
+        }
+    }
+
+    private PotionEffect findEffect(Player player, PotionEffectType type) {
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            if (effect.getType().equals(type)) {
+                return effect;
+            }
+        }
+        return null;
     }
 
     private void consumeOneOrb(Player player, ItemStack orb) {
@@ -467,6 +567,22 @@ public final class PatcherParadiseBuff implements CustomBuff, Listener {
         private PatchActivity(long expiresAt, int hits) {
             this.expiresAt = expiresAt;
             this.hits = hits;
+        }
+    }
+
+    private static final class EffectRestore {
+        private final PotionEffectType effectType;
+        private final PotionEffect displacedEffect;
+        private final long displacedExpiresAt;
+        private final int appliedAmplifier;
+        private int taskId;
+
+        private EffectRestore(PotionEffectType effectType, PotionEffect displacedEffect,
+                              long displacedExpiresAt, int appliedAmplifier) {
+            this.effectType = effectType;
+            this.displacedEffect = displacedEffect;
+            this.displacedExpiresAt = displacedExpiresAt;
+            this.appliedAmplifier = appliedAmplifier;
         }
     }
 }

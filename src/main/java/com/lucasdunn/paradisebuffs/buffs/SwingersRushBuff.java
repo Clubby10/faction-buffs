@@ -38,6 +38,8 @@ public final class SwingersRushBuff implements CustomBuff, Listener {
     private final ParadiseBuffsPlugin plugin;
     private final BuffItemAuthenticator authenticator;
     private final Map<UUID, Integer> hitCounts = new HashMap<UUID, Integer>();
+    private final Map<UUID, SpeedRestore> speedRestores =
+            new HashMap<UUID, SpeedRestore>();
     private final Random random = new Random();
 
     private boolean enabled;
@@ -252,10 +254,11 @@ public final class SwingersRushBuff implements CustomBuff, Listener {
             return;
         }
 
+        if (!applySpeed(attacker)) {
+            hitCounts.put(attackerId, requiredHits);
+            return;
+        }
         hitCounts.remove(attackerId);
-        attacker.addPotionEffect(new PotionEffect(PotionEffectType.SPEED,
-                speedDurationTicks, speedAmplifier, effectAmbient, effectParticles),
-                overwriteExistingEffect);
         if (showActivatedMessage) {
             attacker.sendMessage(format(plugin.message("prefix")
                     + plugin.message("rush-speed-activated")));
@@ -277,6 +280,90 @@ public final class SwingersRushBuff implements CustomBuff, Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         hitCounts.remove(event.getPlayer().getUniqueId());
+        SpeedRestore restore = speedRestores.remove(event.getPlayer().getUniqueId());
+        if (restore != null) {
+            plugin.getServer().getScheduler().cancelTask(restore.taskId);
+            restoreDisplacedEffect(event.getPlayer(), restore, true);
+        }
+    }
+
+    private boolean applySpeed(final Player player) {
+        final UUID playerId = player.getUniqueId();
+        SpeedRestore previousRestore = speedRestores.get(playerId);
+        PotionEffect displacedEffect = null;
+        long displacedExpiresAt = 0L;
+
+        if (previousRestore != null) {
+            displacedEffect = previousRestore.displacedEffect;
+            displacedExpiresAt = previousRestore.displacedExpiresAt;
+        } else {
+            PotionEffect current = findSpeedEffect(player);
+            if (current != null && (current.getAmplifier() > speedAmplifier
+                    || (current.getAmplifier() == speedAmplifier
+                    && current.getDuration() >= speedDurationTicks))) {
+                return false;
+            }
+            if (current != null && current.getAmplifier() < speedAmplifier) {
+                displacedEffect = current;
+                displacedExpiresAt = System.currentTimeMillis() + current.getDuration() * 50L;
+            }
+        }
+
+        boolean applied = player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED,
+                speedDurationTicks, speedAmplifier, effectAmbient, effectParticles),
+                overwriteExistingEffect);
+        if (!applied) {
+            return false;
+        }
+        if (previousRestore != null) {
+            plugin.getServer().getScheduler().cancelTask(previousRestore.taskId);
+        }
+
+        final SpeedRestore restore = new SpeedRestore(displacedEffect, displacedExpiresAt,
+                speedAmplifier);
+        restore.taskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        restoreSpeed(player, restore);
+                    }
+                }, speedDurationTicks);
+        speedRestores.put(playerId, restore);
+        return true;
+    }
+
+    private void restoreSpeed(Player player, SpeedRestore restore) {
+        UUID playerId = player.getUniqueId();
+        if (speedRestores.get(playerId) != restore) {
+            return;
+        }
+        speedRestores.remove(playerId);
+
+        restoreDisplacedEffect(player, restore, false);
+    }
+
+    private void restoreDisplacedEffect(Player player, SpeedRestore restore,
+                                         boolean removeAppliedEffect) {
+        PotionEffect current = findSpeedEffect(player);
+        if (current != null && current.getAmplifier() != restore.appliedAmplifier) {
+            return;
+        }
+        if (current != null && (removeAppliedEffect || current.getDuration() <= 2)) {
+            player.removePotionEffect(PotionEffectType.SPEED);
+        } else if (current != null) {
+            return;
+        }
+        if (restore.displacedEffect == null) {
+            return;
+        }
+
+        int remainingTicks = (int) Math.min(Integer.MAX_VALUE,
+                Math.max(0L, (restore.displacedExpiresAt - System.currentTimeMillis()) / 50L));
+        if (remainingTicks > 0) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED,
+                    remainingTicks, restore.displacedEffect.getAmplifier(),
+                    restore.displacedEffect.isAmbient(), restore.displacedEffect.hasParticles()), true);
+        }
     }
 
     private void consumeOneOrb(Player player, ItemStack orb) {
@@ -287,6 +374,15 @@ public final class SwingersRushBuff implements CustomBuff, Listener {
             remaining.setAmount(orb.getAmount() - 1);
             player.setItemOnCursor(remaining);
         }
+    }
+
+    private PotionEffect findSpeedEffect(Player player) {
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            if (effect.getType().equals(PotionEffectType.SPEED)) {
+                return effect;
+            }
+        }
+        return null;
     }
 
     private boolean isWearingBuffedArmor(Player player) {
@@ -341,5 +437,19 @@ public final class SwingersRushBuff implements CustomBuff, Listener {
 
     private int clamp(int value, int minimum, int maximum) {
         return Math.max(minimum, Math.min(maximum, value));
+    }
+
+    private static final class SpeedRestore {
+        private final PotionEffect displacedEffect;
+        private final long displacedExpiresAt;
+        private final int appliedAmplifier;
+        private int taskId;
+
+        private SpeedRestore(PotionEffect displacedEffect, long displacedExpiresAt,
+                             int appliedAmplifier) {
+            this.displacedEffect = displacedEffect;
+            this.displacedExpiresAt = displacedExpiresAt;
+            this.appliedAmplifier = appliedAmplifier;
+        }
     }
 }
